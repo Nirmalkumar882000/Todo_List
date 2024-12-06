@@ -11,7 +11,7 @@ import TodoColumn from './components/TodoColumn';
 import AddTodoForm from './components/AddTodoForm';
 import { useTodos } from './common/useTofos';
 
-const columns = [
+const todoList = [
   { id: 'todo', title: 'To Do' },
   { id: 'in-progress', title: 'In Progress' },
   { id: 'completed', title: 'Completed' },
@@ -52,7 +52,7 @@ function App() {
 
     const overId = over.id;
 
-    if (columns.find((col) => col.id === overId)) {
+    if (todoList.find((col) => col.id === overId)) {
       if (activeTodo.status !== overId) {
         updateTodo(activeTodo.id, { status: overId });
       }
@@ -78,7 +78,7 @@ function App() {
           onDragOver={handleDragOver}
         >
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 border-2 border-gray-200">
-            {columns.map((column) => (
+            {todoList.map((column) => (
               <TodoColumn
                 key={column.id}
                 column={column}
