@@ -9,7 +9,7 @@ import { arrayMove } from '@dnd-kit/sortable';
 import { motion } from 'framer-motion';
 import TodoColumn from './components/TodoColumn';
 import AddTodoForm from './components/AddTodoForm';
-import { useTodos } from './hooks/useTofos';
+import { useTodos } from './common/useTofos';
 
 const columns = [
   { id: 'todo', title: 'To Do' },
@@ -60,7 +60,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 p-4 sm:p-8">
+    <div className="min-h-screen  from-blue-50 to-indigo-50 p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
@@ -77,7 +77,7 @@ function App() {
           onDragEnd={handleDragEnd}
           onDragOver={handleDragOver}
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 border-2 border-gray-200">
             {columns.map((column) => (
               <TodoColumn
                 key={column.id}

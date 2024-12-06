@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import TodoItem from './TodoItem';
 
 export default function TodoColumn({ column, todos, onDelete, onEdit }) {
+  // column todo, inprogress , completed id find to move 
   const { setNodeRef } = useDroppable({
     id: column.id,
   });
@@ -19,14 +20,15 @@ export default function TodoColumn({ column, todos, onDelete, onEdit }) {
       <motion.h2
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-xl font-semibold mb-4 text-gray-800"
+        className="text-xl font-semibold mb-4  text-gray-800"
       >
         {column.title}
       </motion.h2>
       <div
         ref={setNodeRef}
-        className="flex flex-col gap-3 flex-1"
+        className="flex flex-col gap-3 flex-1 border-2 p-3 border-gray-200"
       >
+        {/* drag abd drop used sortableContent */}
         <SortableContext
           items={todos.map((t) => t.id)}
           strategy={verticalListSortingStrategy}

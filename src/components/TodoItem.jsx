@@ -50,6 +50,8 @@ export default function TodoItem({ todo, onDelete, onEdit }) {
         <GripVertical size={20} />
       </motion.button>
 
+      {/*  edit for task name  */}
+
       {isEditing ? (
         <div className="flex-1 flex items-center gap-2">
           <input
@@ -78,6 +80,8 @@ export default function TodoItem({ todo, onDelete, onEdit }) {
         </div>
       ) : (
         <>
+
+        {/* edit for task name  */}
           <span className="flex-1 text-gray-700">{todo.title}</span>
           <motion.button
             whileHover={{ scale: 1.1 }}
@@ -87,6 +91,8 @@ export default function TodoItem({ todo, onDelete, onEdit }) {
           >
             <Pencil size={16} />
           </motion.button>
+
+          {/* deleted for task name  */}
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
