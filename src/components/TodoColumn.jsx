@@ -1,48 +1,42 @@
-import React from 'react';
-import { useDroppable } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { motion } from 'framer-motion';
+import { useDrop } from 'react-dnd';
 import TodoItem from './TodoItem';
 
-export default function TodoColumn({ column, todos, onDelete, onEdit }) {
-  // column todo, inprogress , completed id find to move 
-  const { setNodeRef } = useDroppable({
-    id: column.id,
-  });
+function TodoColumn({ title, status, todos, updateTodo, deleteTodo, fetchTodos }) {
+  const [{ isOver }, drop] = useDrop(() => ({
+    accept: 'TODO',
+    drop: (item) => {
+      if (item.status !== status) {
+        updateTodo(item.id, { status });
+      }
+    },
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+    }),
+  }));
+  
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.3 }}
-      className="flex flex-col w-full bg-gray-50 rounded-xl p-4 min-h-[400px]"
+    <div
+      ref={drop} 
+      className={`flex flex-col w-full bg-gray-50 rounded-xl p-4 min-h-[400px] ${
+        isOver ? 'bg-green-100' : ''
+      } transition-all duration-300 space-y-4`}
     >
-      <motion.h2
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-xl font-semibold mb-4  text-gray-800"
-      >
-        {column.title}
-      </motion.h2>
-      <div
-        ref={setNodeRef}
-        className="flex flex-col gap-3 flex-1 border-2 p-3 border-gray-200"
-      >
-        {/* drag abd drop used sortableContent */}
-        <SortableContext
-          items={todos.map((t) => t.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          {todos.map((todo) => (
+      <h2 className="text-xl font-bold text-gray-800">{title}</h2>
+      <div className="flex flex-col gap-3 flex-1 border-2 p-3 border-gray-200">
+        {todos
+          .filter((todo) => todo.status === status)
+          .map((todo) => (
             <TodoItem
-              key={todo.id}
+              key={todo._id}
               todo={todo}
-              onDelete={onDelete}
-              onEdit={onEdit}
+              deleteTodo={deleteTodo}
+              fetchTodos={fetchTodos}
             />
           ))}
-        </SortableContext>
       </div>
-    </motion.div>
+    </div>
   );
 }
+
+export default TodoColumn;

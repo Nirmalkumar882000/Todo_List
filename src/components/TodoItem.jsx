@@ -1,108 +1,96 @@
-import { useState } from 'react';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { useDrag } from 'react-dnd';
 import { motion } from 'framer-motion';
-import { Pencil, Trash2, GripVertical, X, Check } from 'lucide-react';
+import { Check, GripVertical, Pencil, Trash2, X } from 'lucide-react';
+import { useState } from 'react';
+import axios from 'axios';
 
-export default function TodoItem({ todo, onDelete, onEdit }) {
+function TodoItem({ todo, index, deleteTodo,fetchTodos }) {
   const [isEditing, setIsEditing] = useState(false);
-  const [editedTitle, setEditedTitle] = useState(todo.title);
+  const [title, setTitle] = useState(todo.title);
 
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: todo.id });
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: 'TODO',
+    item: { id: todo._id, index },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  }));
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  const handleSave = () => {
-    if (editedTitle.trim()) {
-      onEdit(todo.id, editedTitle);
-      setIsEditing(false);
+  const handleEdit = async () => {
+    try {
+      const response = await axios.put(`https://todo-list-backend-e01w.onrender.com/api/todos/${todo._id}`, { title });
+      setIsEditing(false)
+      fetchTodos()
+    } catch (error) {
+      console.error('Error updating todo:', error);
+      alert('Failed to update todo.');
     }
   };
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      ref={setNodeRef}
-      style={style}
-      className={`bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex items-center gap-3 ${
-        isDragging ? 'opacity-50' : ''
-      }`}
+      ref={drag}
+      className={`p-4 mb-2 border rounded-md cursor-pointer ${isDragging ? 'opacity-50' : 'opacity-100'}`}
     >
-      <motion.button
-        {...attributes}
-        {...listeners}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        className="touch-none text-gray-400 hover:text-gray-600"
-      >
-        <GripVertical size={20} />
-      </motion.button>
+      <div className="flex justify-between items-center">
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          className="touch-none text-gray-400 hover:text-gray-600"
+        >
+          <GripVertical size={20} />
+        </motion.button>
 
-      {/*  edit for task name  */}
-
-      {isEditing ? (
-        <div className="flex-1 flex items-center gap-2">
-          <input
-            type="text"
-            value={editedTitle}
-            onChange={(e) => setEditedTitle(e.target.value)}
-            className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            autoFocus
-          />
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={handleSave}
-            className="text-green-600 hover:text-green-700 p-1"
-          >
-            <Check size={18} />
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setIsEditing(false)}
-            className="text-red-600 hover:text-red-700 p-1"
-          >
-            <X size={18} />
-          </motion.button>
-        </div>
-      ) : (
-        <>
-
-        {/* edit for task name  */}
-          <span className="flex-1 text-gray-700">{todo.title}</span>
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setIsEditing(true)}
-            className="text-gray-400 hover:text-gray-600 p-1"
-          >
-            <Pencil size={16} />
-          </motion.button>
-
-          {/* deleted for task name  */}
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => onDelete(todo.id)}
-            className="text-gray-400 hover:text-red-600 p-1"
-          >
-            <Trash2 size={16} />
-          </motion.button>
-        </>
-      )}
+        {isEditing ? (
+          <div className="flex-1 flex items-center gap-2">
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              autoFocus
+            />
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={handleEdit}
+              className="text-green-600 hover:text-green-700 p-1"
+            >
+              <Check size={18} />
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setIsEditing(false)}
+              className="text-red-600 hover:text-red-700 p-1"
+            >
+              <X size={18} />
+            </motion.button>
+          </div>
+        ) : (
+          <>
+            <span className="flex-1 text-gray-700">{todo.title}</span>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setIsEditing(true)}
+              className="text-gray-400 hover:text-gray-600 p-1"
+            >
+              <Pencil size={16} />
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => deleteTodo(todo._id)}
+              className="text-gray-400 hover:text-red-600 p-1"
+            >
+              <Trash2 size={16} />
+            </motion.button>
+          </>
+        )}
+      </div>
     </motion.div>
   );
 }
+
+export default TodoItem;

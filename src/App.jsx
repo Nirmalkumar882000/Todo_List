@@ -1,96 +1,82 @@
-import React from 'react';
-import {
-  DndContext,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import { arrayMove } from '@dnd-kit/sortable';
-import { motion } from 'framer-motion';
-import TodoColumn from './components/TodoColumn';
-import AddTodoForm from './components/AddTodoForm';
-import { useTodos } from './common/useTofos';
+import React, { useEffect, useState } from "react";
+import { useTodos } from "./common/useTodos";
+import TodoColumn from "./components/TodoColumn";
+import { DndProvider } from "react-dnd";
+import { motion } from "framer-motion";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
-const todoList = [
-  { id: 'todo', title: 'To Do' },
-  { id: 'in-progress', title: 'In Progress' },
-  { id: 'completed', title: 'Completed' },
-];
+import AddTodos from "./components/AddTodos";
 
 function App() {
-  const { todos, setTodos, addTodo, updateTodo, deleteTodo } = useTodos();
-  const sensors = useSensors(useSensor(PointerSensor));
+  const { todos, addTodo, fetchTodos,updateTodo, deleteTodo } = useTodos();
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const handleDragEnd = (event) => {
-    const { active, over } = event;
+  useEffect(() => {
+    fetchTodos();
+  }, []);
 
-    if (!over) return;
-
-    const activeTodo = todos.find((todo) => todo.id === active.id);
-    const overTodo = todos.find((todo) => todo.id === over.id);
-
-    if (!activeTodo) return;
-
-    if (overTodo) {
-      const activeIndex = todos.findIndex((t) => t.id === active.id);
-      const overIndex = todos.findIndex((t) => t.id === over.id);
-
-      if (activeTodo.status === overTodo.status) {
-        setTodos(arrayMove(todos, activeIndex, overIndex));
-      }
-    }
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value.toLowerCase());
   };
 
-  const handleDragOver = (event) => {
-    const { active, over } = event;
-
-    if (!over) return;
-
-    const activeTodo = todos.find((todo) => todo.id === active.id);
-
-    if (!activeTodo) return;
-
-    const overId = over.id;
-
-    if (todoList.find((col) => col.id === overId)) {
-      if (activeTodo.status !== overId) {
-        updateTodo(activeTodo.id, { status: overId });
-      }
-    }
-  };
+  const filteredTodos = todos.filter((todo) =>
+    todo.title.toLowerCase().includes(searchQuery)
+  );
 
   return (
-    <div className="min-h-screen  from-blue-50 to-indigo-50 p-4 sm:p-8">
-      <div className="max-w-7xl mx-auto">
-        <motion.h1
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-4xl font-bold text-gray-900 mb-8 text-center"
-        >
-          Task Manager
-        </motion.h1>
+    <DndProvider backend={HTML5Backend}>
+      <div className="min-h-screen from-blue-50 to-indigo-50 p-4 sm:p-8">
+        <div className="max-w-7xl mx-auto">
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl font-bold text-gray-900 mb-8 text-center"
+          >
+            Task Manager
+          </motion.h1>
+        </div>
 
-        <AddTodoForm onAdd={addTodo} />
+        <AddTodos addTodo={addTodo} />
 
-        <DndContext
-          sensors={sensors}
-          onDragEnd={handleDragEnd}
-          onDragOver={handleDragOver}
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 border-2 border-gray-200">
-            {todoList.map((column) => (
-              <TodoColumn
-                key={column.id}
-                column={column}
-                todos={todos.filter((todo) => todo.status === column.id)}
-                onDelete={deleteTodo}
-                onEdit={(id, title) => updateTodo(id, { title })}
-              />
-            ))}
-          </div>
-        </DndContext>
+              {/* Add Search Bar */}
+        <div className="w-full mx-auto mb-6">
+          <input
+            type="text"
+            placeholder="Search tasks..."
+            value={searchQuery}
+            onChange={handleSearch}
+            className="w-1/4 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 border-2 border-gray-200">
+          <TodoColumn
+            title="To Do"
+            status="todo"
+            todos={filteredTodos}
+            updateTodo={updateTodo}
+            deleteTodo={deleteTodo}
+            fetchTodos={fetchTodos}
+          />
+          <TodoColumn
+            title="In Progress"
+            status="in-progress"
+            todos={filteredTodos}
+            updateTodo={updateTodo}
+            deleteTodo={deleteTodo}
+            fetchTodos={fetchTodos}
+          />
+          <TodoColumn
+            title="Completed"
+            status="completed"
+            todos={filteredTodos}
+            updateTodo={updateTodo}
+            deleteTodo={deleteTodo}
+            fetchTodos={fetchTodos}
+          />
+        </div>
       </div>
-    </div>
+    </DndProvider>
   );
 }
 

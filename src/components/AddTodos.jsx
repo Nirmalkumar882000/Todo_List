@@ -1,19 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 import { Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export default function AddTodoForm({ onAdd }) {
-  const [title, setTitle] = useState('');
-  const [status, setStatus] = useState('todo');
 
+const AddTodos = ({addTodo}) => {
+  const [title, setTitle] = useState('');
   const handleSubmit = (e) => {
     e.preventDefault();
     if (title.trim()) {
-      onAdd(title.trim(), status);
+      addTodo(title, 'todo');
       setTitle('');
     }
   };
-
   return (
     <motion.form
       initial={{ opacity: 0, y: -20 }}
@@ -30,15 +28,6 @@ export default function AddTodoForm({ onAdd }) {
           placeholder="Add a new task..."
           className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-        >
-          <option value="todo">To Do</option>
-          <option value="in-progress">In Progress</option>
-          <option value="completed">Completed</option>
-        </select>
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
@@ -50,5 +39,7 @@ export default function AddTodoForm({ onAdd }) {
         </motion.button>
       </div>
     </motion.form>
-  );
+  )
 }
+
+export default AddTodos
